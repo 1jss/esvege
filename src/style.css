@@ -19,6 +19,8 @@
   --canvas-bg: #e5e5e5;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --handle-stroke: #000;
+  --handle-fill: #fff;
 }
 
 html, body {
@@ -294,42 +296,42 @@ html, body {
 
 #editor-svg .shape-handle {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--handle-stroke);
   stroke-width: 1;
   stroke-dasharray: 3,3;
   pointer-events: none;
 }
 
 #editor-svg .resize-handle {
-  fill: #fff;
-  stroke: var(--accent);
+  fill: var(--handle-fill);
+  stroke: var(--handle-stroke);
   stroke-width: 1.5;
   cursor: nw-resize;
   pointer-events: all;
 }
 
 #editor-svg .anchor-point {
-  fill: #fff;
-  stroke: var(--accent);
+  fill: var(--handle-fill);
+  stroke: var(--handle-stroke);
   stroke-width: 1.5;
   cursor: move;
   pointer-events: all;
 }
 
 #editor-svg .anchor-point.active {
-  fill: var(--accent);
+  fill: var(--handle-stroke);
 }
 
 #editor-svg .control-line {
-  stroke: var(--text-muted);
+  stroke: var(--handle-stroke);
   stroke-width: 1;
   stroke-dasharray: 2,2;
   pointer-events: none;
 }
 
 #editor-svg .control-dot {
-  fill: var(--text-muted);
-  stroke: var(--accent);
+  fill: var(--handle-fill);
+  stroke: var(--handle-stroke);
   stroke-width: 1;
   cursor: grab;
   pointer-events: all;
@@ -397,23 +399,23 @@ html, body {
 }
 
 #editor-svg .bezier-preview-point {
-  fill: var(--accent);
-  stroke: #fff;
-  stroke-width: 1;
+  fill: var(--handle-stroke);
+  stroke: var(--handle-fill);
+  stroke-width: 1.5;
   pointer-events: none;
 }
 
 #editor-svg .bezier-preview-line {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--handle-stroke);
   stroke-width: 1;
   stroke-dasharray: 3,3;
   pointer-events: none;
 }
 
 #editor-svg .preview-shape {
-  fill: rgba(91, 143, 175, 0.15);
-  stroke: var(--accent);
+  fill: rgba(0, 0, 0, 0.06);
+  stroke: var(--handle-stroke);
   stroke-width: 1;
   stroke-dasharray: 3,3;
   pointer-events: none;
