@@ -679,7 +679,7 @@ function renderFillUI(panel, shape, multi) {
   const currentSwatch = document.createElement('div');
   currentSwatch.className = 'current-fill-swatch';
   currentSwatch.style.backgroundColor = shape.fill || '#000000';
-  currentSwatch.addEventListener('click', () => nativePicker.click());
+  currentSwatch.style.position = 'relative';
   currentRow.appendChild(currentSwatch);
 
   const hexInput = document.createElement('input');
@@ -706,7 +706,7 @@ function renderFillUI(panel, shape, multi) {
   const nativePicker = document.createElement('input');
   nativePicker.type = 'color';
   nativePicker.value = shape.fill || '#000000';
-  nativePicker.addEventListener('input', () => {
+  nativePicker.addEventListener('change', () => {
     pushSnapshot();
     if (multi) {
       for (const s of appState.doc.shapes.filter(s => appState.selectedIds.includes(s.id))) {
@@ -717,8 +717,8 @@ function renderFillUI(panel, shape, multi) {
     }
     if (renderFn) renderFn();
   });
-  nativePicker.style.display = 'none';
-  currentRow.appendChild(nativePicker);
+  nativePicker.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;border:none;padding:0;';
+  currentSwatch.appendChild(nativePicker);
 
   panel.appendChild(currentRow);
 
