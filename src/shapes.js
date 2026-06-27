@@ -1,10 +1,11 @@
-let _nextId = 1;
-function nextId() {
-  return 'shape_' + (_nextId++);
+export function getId() {
+  const buf = new Uint8Array(6);
+  crypto.getRandomValues(buf);
+  return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
 }
-export { nextId as resetShapeId };
 
-let FILLS = ['#eeeeec', '#d3d7cf', '#babdb6', '#888a85', '#555753', '#2e3436',
+let FILLS = ['#eeeeec', '#d3d7cf', '#babdb6',
+             '#888a85', '#555753', '#2e3436',
              '#fce94f', '#edd400', '#c4a000',
              '#8ae234', '#73d216', '#4e9a06',
              '#e9b96e', '#c17d11', '#8f5902',
@@ -25,7 +26,7 @@ export { nextFill as resetFill };
 export function createCircle(cx, cy, rx, ry, fill) {
   return {
     type: 'circle',
-    id: nextId(),
+    id: getId(),
     fill: fill || nextFill(),
     cx: Math.round(cx),
     cy: Math.round(cy),
@@ -37,7 +38,7 @@ export function createCircle(cx, cy, rx, ry, fill) {
 export function createRect(x, y, w, h, fill) {
   return {
     type: 'rect',
-    id: nextId(),
+    id: getId(),
     fill: fill || nextFill(),
     x: Math.round(x),
     y: Math.round(y),
@@ -49,7 +50,7 @@ export function createRect(x, y, w, h, fill) {
 export function createBezier(points, fill) {
   return {
     type: 'bezier',
-    id: nextId(),
+    id: getId(),
     fill: fill || nextFill(),
     points: points.map(p => ({
       x: Math.round(p.x),

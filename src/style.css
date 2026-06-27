@@ -418,6 +418,7 @@ html, body {
   stroke-width: 1;
   stroke-dasharray: 3,3;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 #editor-svg .preview-shape {
@@ -426,6 +427,7 @@ html, body {
   stroke-width: 1;
   stroke-dasharray: 3,3;
   pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Properties panel (right) */

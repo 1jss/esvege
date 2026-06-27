@@ -1,6 +1,6 @@
 import { icon } from './icons.js';
 import { listDocuments, loadDocument, saveDocument, deleteDocument, setActive } from './store.js';
-import { fromSVGElement } from './shapes.js';
+import { fromSVGElement, getId } from './shapes.js';
 
 const PRESET_COLORS = [
   '#eeeeec', '#d3d7cf', '#babdb6', '#888a85', '#555753', '#2e3436',
@@ -773,7 +773,7 @@ export function updatePropertiesPanel() {
       e.stopPropagation();
       pushSnapshot();
       const clone = JSON.parse(JSON.stringify(s))
-      clone.id = crypto.randomUUID();
+      clone.id = getId();
       const arr = doc.shapes;
       arr.splice(i + 1, 0, clone);
       appState.selectedIds = [clone.id];
