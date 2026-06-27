@@ -361,6 +361,7 @@ function buildToolbar() {
   }
   zoomSelect.addEventListener('change', () => {
     updateCanvasTransform();
+    if (renderFn) renderFn();
   });
   toolbar.appendChild(zoomSelect);
 
@@ -453,7 +454,9 @@ function buildCanvasArea(editorBody, doc) {
     const { minX, maxX, minY, maxY, zoom } = range;
     appState.panOffset.x = Math.max(minX, Math.min(maxX, appState.panOffset.x));
     appState.panOffset.y = Math.max(minY, Math.min(maxY, appState.panOffset.y));
-    container.style.transform = `translate(${appState.panOffset.x}px, ${appState.panOffset.y}px) scale(${zoom})`;
+    container.style.transform = `translate(${appState.panOffset.x}px, ${appState.panOffset.y}px)`;
+    svg.setAttribute('width', doc.width * zoom);
+    svg.setAttribute('height', doc.height * zoom);
     setThumbs(range);
   }
 

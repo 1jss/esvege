@@ -7,6 +7,11 @@ import { setupToolHandlers, updateToolUI } from './tools.js';
 import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool, updateNodeToolVisibility, updateCanvasTransform } from './ui.js';
 import { exportSVG } from './export.js';
 
+function getZoom() {
+  const select = document.getElementById('zoom-select');
+  return select ? parseInt(select.value) / 100 : 1;
+}
+
 // App state singleton
 const appState = {
   doc: null,
@@ -117,7 +122,7 @@ function render() {
       const circle = document.createElementNS(ns, 'circle');
       circle.setAttribute('cx', pt.x);
       circle.setAttribute('cy', pt.y);
-      circle.setAttribute('r', 3);
+      circle.setAttribute('r', 6 / getZoom());
       circle.classList.add('bezier-preview-point');
       handlesLayer.appendChild(circle);
     }
