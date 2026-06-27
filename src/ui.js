@@ -365,6 +365,57 @@ function buildToolbar() {
   });
   toolbar.appendChild(zoomSelect);
 
+  const dimSep = document.createElement('div');
+  dimSep.className = 'separator';
+  toolbar.appendChild(dimSep);
+
+  const wLabel = document.createElement('label');
+  wLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;margin-right:0.2rem;';
+  wLabel.textContent = 'W:';
+  toolbar.appendChild(wLabel);
+
+  const wInput = document.createElement('input');
+  wInput.type = 'number';
+  wInput.step = '1';
+  wInput.min = '1';
+  wInput.max = '4096';
+  wInput.value = appState.doc ? appState.doc.width : 64;
+  wInput.style.cssText = 'background:#ffffff;color:#2c2c2c;border:1px solid #e0e0e4;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;width:4rem;margin-right:0.5rem;';
+  wInput.addEventListener('change', () => onDimChange());
+  toolbar.appendChild(wInput);
+
+  const hLabel = document.createElement('label');
+  hLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;margin-right:0.2rem;';
+  hLabel.textContent = 'H:';
+  toolbar.appendChild(hLabel);
+
+  const hInput = document.createElement('input');
+  hInput.type = 'number';
+  hInput.step = '1';
+  hInput.min = '1';
+  hInput.max = '4096';
+  hInput.value = appState.doc ? appState.doc.height : 64;
+  hInput.style.cssText = 'background:#ffffff;color:#2c2c2c;border:1px solid #e0e0e4;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;width:4rem;';
+  hInput.addEventListener('change', () => onDimChange());
+  toolbar.appendChild(hInput);
+
+  function onDimChange() {
+    if (!appState.doc) return;
+    const w = Math.max(1, Math.min(4096, parseInt(wInput.value) || 1));
+    const h = Math.max(1, Math.min(4096, parseInt(hInput.value) || 1));
+    wInput.value = w;
+    hInput.value = h;
+    appState.doc.width = w;
+    appState.doc.height = h;
+    const svg = document.getElementById('editor-svg');
+    if (svg) {
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    }
+    pushSnapshot();
+    updateCanvasTransform();
+    if (renderFn) renderFn();
+  }
+
   const spacer = document.createElement('div');
   spacer.className = 'spacer';
   toolbar.appendChild(spacer);
