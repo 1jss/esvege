@@ -23,7 +23,6 @@ export function setupToolHandlers(svgEl, state, render) {
   svgEl.addEventListener('pointermove', onPointerMove);
   svgEl.addEventListener('pointerup', onPointerUp);
   svgEl.addEventListener('pointerleave', onPointerUp);
-  svgEl.addEventListener('dblclick', onDblClick);
 }
 
 function onPointerDown(e) {
@@ -67,12 +66,37 @@ function onPointerDown(e) {
       for (let i = 0; i < bezier.points.length; i++) {
         const pt = bezier.points[i];
         if (Math.hypot(mx - pt.x, my - pt.y) <= 4) {
-          if (pt.cp1x == null) {
-            const off = 30;
-            pt.cp1x = Math.round(pt.x + off);
-            pt.cp1y = Math.round(pt.y);
-            pt.cp2x = Math.round(pt.x - off);
-            pt.cp2y = Math.round(pt.y);
+          if (pt.cp1x == null || pt.cp2x == null) {
+            const pts = bezier.points;
+            const n = pts.length;
+            const prev = pts[(i - 1 + n) % n];
+            const next = pts[(i + 1) % n];
+            let dx = next.x - prev.x;
+            let dy = next.y - prev.y;
+            if (dx === 0 && dy === 0) {
+              dx = pt.x - next.x;
+              dy = pt.y - next.y;
+            }
+            const dirLen = Math.hypot(dx, dy);
+            if (dirLen > 0) {
+              dx /= dirLen;
+              dy /= dirLen;
+            } else {
+              dx = 1; dy = 0;
+            }
+            const dPrev = Math.hypot(pt.x - prev.x, pt.y - prev.y);
+            const dNext = Math.hypot(pt.x - next.x, pt.y - next.y);
+            const handleLen = Math.min(30, Math.min(dPrev, dNext) * 0.4, Math.max(dPrev, dNext) * 0.3);
+            const cw = appState.doc.width;
+            const ch = appState.doc.height;
+            if (pt.cp2x == null) {
+              pt.cp2x = Math.round(Math.max(0, Math.min(cw, pt.x + dx * handleLen)));
+              pt.cp2y = Math.round(Math.max(0, Math.min(ch, pt.y + dy * handleLen)));
+            }
+            if (pt.cp1x == null) {
+              pt.cp1x = Math.round(Math.max(0, Math.min(cw, pt.x - dx * handleLen)));
+              pt.cp1y = Math.round(Math.max(0, Math.min(ch, pt.y - dy * handleLen)));
+            }
             pushSnapshot();
             renderFn();
             e.preventDefault();
@@ -242,7 +266,7 @@ function onPointerDown(e) {
       const first = pts[0];
       const dist = Math.hypot(mx - first.x, my - first.y);
       if (dist <= 6 && pts.length >= 2) {
-        finishBezier(true, svg);
+        finishBezier(svg);
         return;
       }
     }
@@ -430,38 +454,11 @@ function onPointerUp(e) {
   dragState = null;
 }
 
-function onDblClick(e) {
-  if (appState.tool !== 'bezier') return;
-  const svg = e.currentTarget;
-  const coords = toSVGCoords(svg, e.clientX, e.clientY);
-  const mx = coords.x;
-  const my = coords.y;
-
-  const pts = appState.bezierPoints || [];
-  if (pts.length < 2) return;
-
-  const first = pts[0];
-  const dist = Math.hypot(mx - first.x, my - first.y);
-  const closed = dist <= 6;
-
-  if (!closed) {
-    if (pts.length > 0) {
-      const prev = pts[pts.length - 1];
-      prev.cp2x = null;
-      prev.cp2y = null;
-    }
-    pts.push({ x: Math.round(mx), y: Math.round(my), cp1x: null, cp1y: null, cp2x: null, cp2y: null });
-  }
-
-  finishBezier(closed, svg);
-  e.preventDefault();
-}
-
-function finishBezier(closed, svg) {
+function finishBezier(svg) {
   const pts = appState.bezierPoints || [];
   if (pts.length >= 2) {
     pushSnapshot();
-    const shape = createBezier(pts, closed);
+    const shape = createBezier(pts);
     appState.doc.shapes.push(shape);
     appState.selectedIds = [shape.id];
   }

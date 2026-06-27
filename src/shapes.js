@@ -42,7 +42,7 @@ export function createRect(x, y, w, h, fill) {
   };
 }
 
-export function createBezier(points, closed, fill) {
+export function createBezier(points, fill) {
   return {
     type: 'bezier',
     id: nextId(),
@@ -55,7 +55,7 @@ export function createBezier(points, closed, fill) {
       cp2x: p.cp2x != null ? Math.round(p.cp2x) : null,
       cp2y: p.cp2y != null ? Math.round(p.cp2y) : null
     })),
-    closed: !!closed
+    closed: true
   };
 }
 
@@ -185,7 +185,6 @@ function fromSVGPath(d, fill) {
   if (commands.length === 0) return null;
 
   const points = [];
-  let closed = false;
   let firstX = 0, firstY = 0;
 
   for (let i = 0; i < commands.length; i++) {
@@ -207,12 +206,11 @@ function fromSVGPath(d, fill) {
       if (prev) { prev.cp2x = args[0]; prev.cp2y = args[1]; }
       points.push({ x: args[4], y: args[5], cp1x: args[2], cp1y: args[3], cp2x: null, cp2y: null });
     } else if (cmd === 'Z') {
-      closed = true;
     }
   }
 
   if (points.length < 2) return null;
-  return createBezier(points, closed, fill);
+  return createBezier(points, fill);
 }
 
 // --- Hit testing ---

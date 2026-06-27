@@ -347,11 +347,11 @@ function buildToolbar() {
   const zoomSelect = document.createElement('select');
   zoomSelect.id = 'zoom-select';
   zoomSelect.style.cssText = 'background:#1a1a2e;color:#e0e0e0;border:1px solid #444;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;';
-  const zooms = [25, 50, 100, 200, 400];
+  const zooms = [50, 100, 200, 400, 800];
   for (const z of zooms) {
     const opt = document.createElement('option');
     opt.value = z;
-    opt.textContent = z + '%';
+    opt.textContent = z/100 + 'x';
     if (z === 100) opt.selected = true;
     zoomSelect.appendChild(opt);
   }
@@ -611,23 +611,6 @@ function renderShapeProperties(panel, shape) {
       addPropRow(panel, 'h', shape.height, (v) => { shape.height = Math.max(1, v); });
       break;
     case 'bezier': {
-      // Closed toggle
-      const checkDiv = document.createElement('div');
-      checkDiv.className = 'prop-check';
-      const check = document.createElement('input');
-      check.type = 'checkbox';
-      check.checked = shape.closed;
-      check.addEventListener('change', () => {
-        pushSnapshot();
-        shape.closed = check.checked;
-        if (renderFn) renderFn();
-      });
-      const clabel = document.createElement('label');
-      clabel.textContent = 'Closed';
-      checkDiv.appendChild(check);
-      checkDiv.appendChild(clabel);
-      panel.appendChild(checkDiv);
-
       // Selected point props (if node-editing)
       if (appState.activePointIndex >= 0 && appState.activePointIndex < shape.points.length) {
         const pt = shape.points[appState.activePointIndex];
