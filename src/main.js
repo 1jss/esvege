@@ -4,7 +4,7 @@ import { listDocuments, loadDocument, saveDocument, setActive, getActive } from 
 import { toSVGElement, cloneShape } from './shapes.js';
 import { drawSelectionHandles, drawNodeHandles } from './handles.js';
 import { setupToolHandlers, updateToolUI } from './tools.js';
-import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool, updateNodeToolVisibility } from './ui.js';
+import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool, updateNodeToolVisibility, updateCanvasTransform } from './ui.js';
 import { exportSVG } from './export.js';
 
 // App state singleton
@@ -16,6 +16,7 @@ const appState = {
   activePointIndex: -1,
   undoStack: [],
   redoStack: [],
+  panOffset: { x: 0, y: 0 },
   _preview: null,
   // Callbacks wired by init
   onUndo: null,
@@ -247,6 +248,7 @@ appState.onEnterEditor = function(doc) {
   appState.undoStack = [];
   appState.redoStack = [];
   pushSnapshot();
+  requestAnimationFrame(updateCanvasTransform);
 };
 
 appState.onExitEditor = function() {

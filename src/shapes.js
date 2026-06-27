@@ -4,10 +4,14 @@ function nextId() {
 }
 export { nextId as resetShapeId };
 
-let FILLS = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231',
-             '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4',
-             '#469990', '#dcbeff', '#9a6324', '#fffac8', '#800000',
-             '#aaffc3'];
+let FILLS = ['#eeeeec', '#d3d7cf', '#babdb6', '#888a85', '#555753', '#2e3436',
+             '#fce94f', '#edd400', '#c4a000',
+             '#8ae234', '#73d216', '#4e9a06',
+             '#e9b96e', '#c17d11', '#8f5902',
+             '#fcaf3e', '#f57900', '#ce5c00',
+             '#ad7fa8', '#75507b', '#5c3566',
+             '#ef2929', '#cc0000', '#a40000',
+             '#729fcf', '#3465a4', '#204a87'];
 let fillIdx = 0;
 function nextFill() {
   const c = FILLS[fillIdx % FILLS.length];

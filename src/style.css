@@ -251,14 +251,15 @@ html, body {
 #canvas-area {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  padding: 1rem;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
   background: #111;
 }
 
 #canvas-container {
+  transform-origin: 0 0;
   background-image:
     linear-gradient(45deg, #333 25%, transparent 25%),
     linear-gradient(-45deg, #333 25%, transparent 25%),
@@ -316,6 +317,67 @@ html, body {
   stroke-width: 1;
   cursor: grab;
   pointer-events: all;
+}
+
+/* Canvas scrollbars */
+.scrollbar-h, .scrollbar-v {
+  position: absolute;
+  background: #1e1e2e;
+  z-index: 10;
+}
+
+.scrollbar-h {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.scrollbar-v {
+  top: 0;
+  right: 0;
+  bottom: 12px;
+  width: 12px;
+}
+
+.scrollbar-thumb {
+  position: absolute;
+  background: #555;
+  cursor: grab;
+}
+
+.scrollbar-h .scrollbar-thumb {
+  height: 8px;
+  top: 2px;
+}
+
+.scrollbar-v .scrollbar-thumb {
+  width: 8px;
+  left: 2px;
+}
+
+.scrollbar-thumb:hover {
+  background: #777;
+}
+
+.scrollbar-thumb:active {
+  background: #999;
+  cursor: grabbing;
+}
+
+.scrollbar-corner {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: #1e1e2e;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.scrollbar-corner:hover {
+  background: #333;
 }
 
 #editor-svg .bezier-preview-point {

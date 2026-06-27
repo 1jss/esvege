@@ -3,10 +3,14 @@ import { listDocuments, loadDocument, saveDocument, deleteDocument, setActive } 
 import { fromSVGElement } from './shapes.js';
 
 const PRESET_COLORS = [
-  '#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231',
-  '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4',
-  '#469990', '#dcbeff', '#9a6324', '#fffac8', '#800000',
-  '#aaffc3', '#000000', '#ffffff'
+  '#eeeeec', '#d3d7cf', '#babdb6', '#888a85', '#555753', '#2e3436',
+  '#fce94f', '#edd400', '#c4a000',
+  '#8ae234', '#73d216', '#4e9a06',
+  '#e9b96e', '#c17d11', '#8f5902',
+  '#fcaf3e', '#f57900', '#ce5c00',
+  '#ad7fa8', '#75507b', '#5c3566',
+  '#ef2929', '#cc0000', '#a40000',
+  '#729fcf', '#3465a4', '#204a87'
 ];
 
 let appState = null;
@@ -356,12 +360,7 @@ function buildToolbar() {
     zoomSelect.appendChild(opt);
   }
   zoomSelect.addEventListener('change', () => {
-    const scale = parseInt(zoomSelect.value) / 100;
-    const container = document.getElementById('canvas-container');
-    if (container) {
-      container.style.transform = `scale(${scale})`;
-      container.style.transformOrigin = 'top left';
-    }
+    updateCanvasTransform();
   });
   toolbar.appendChild(zoomSelect);
 
@@ -394,7 +393,163 @@ function buildCanvasArea(editorBody, doc) {
 
   container.appendChild(svg);
   canvasArea.appendChild(container);
+
+  // Horizontal scrollbar
+  const scrollH = document.createElement('div');
+  scrollH.className = 'scrollbar-h';
+  const thumbH = document.createElement('div');
+  thumbH.className = 'scrollbar-thumb';
+  scrollH.appendChild(thumbH);
+  canvasArea.appendChild(scrollH);
+
+  // Vertical scrollbar
+  const scrollV = document.createElement('div');
+  scrollV.className = 'scrollbar-v';
+  const thumbV = document.createElement('div');
+  thumbV.className = 'scrollbar-thumb';
+  scrollV.appendChild(thumbV);
+  canvasArea.appendChild(scrollV);
+
+  // Corner block
+  const corner = document.createElement('div');
+  corner.className = 'scrollbar-corner';
+  canvasArea.appendChild(corner);
+
   editorBody.appendChild(canvasArea);
+
+  function getPanRange() {
+    const vw = canvasArea.clientWidth;
+    const vh = canvasArea.clientHeight;
+    const zoom = parseInt(document.getElementById('zoom-select').value) / 100 || 1;
+    const iw = doc.width * zoom;
+    const ih = doc.height * zoom;
+    return {
+      minX: iw <= vw ? 0 : vw - iw,
+      maxX: iw <= vw ? vw - iw : 0,
+      minY: ih <= vh ? 0 : vh - ih,
+      maxY: ih <= vh ? vh - ih : 0,
+      vw, vh, iw, ih, zoom
+    };
+  }
+
+  function setThumbs(range) {
+    const spanX = range.maxX - range.minX;
+    const spanY = range.maxY - range.minY;
+    const trackW = scrollH.clientWidth;
+    const trackH = scrollV.clientHeight;
+    const tw = Math.min(trackW/2, range.iw);
+    const th = Math.min(trackH/2, range.ih);
+    const maxLeft = trackW - tw;
+    const maxTop = trackH - th;
+    const px = spanX ? (appState.panOffset.x - range.minX) / spanX : 0;
+    const py = spanY ? (appState.panOffset.y - range.minY) / spanY : 0;
+    thumbH.style.width = tw + 'px';
+    thumbH.style.left = Math.min(maxLeft, px * maxLeft) + 'px';
+    thumbV.style.height = th + 'px';
+    thumbV.style.top = Math.min(maxTop, py * maxTop) + 'px';
+  }
+
+  function applyPan(range) {
+    const { minX, maxX, minY, maxY, zoom } = range;
+    appState.panOffset.x = Math.max(minX, Math.min(maxX, appState.panOffset.x));
+    appState.panOffset.y = Math.max(minY, Math.min(maxY, appState.panOffset.y));
+    container.style.transform = `translate(${appState.panOffset.x}px, ${appState.panOffset.y}px) scale(${zoom})`;
+    setThumbs(range);
+  }
+
+  // --- Scrollbar pointer handlers ---
+
+  let scrollDrag = null;
+
+  function startScrollDrag(e, isH) {
+    e.preventDefault();
+    e.stopPropagation();
+    scrollDrag = { isH, startX: e.clientX, startY: e.clientY, startPanX: appState.panOffset.x, startPanY: appState.panOffset.y };
+    canvasArea.setPointerCapture(e.pointerId);
+  }
+
+  function onScrollPointerMove(e) {
+    if (!scrollDrag) return;
+    const range = getPanRange();
+    if (scrollDrag.isH) {
+      const span = range.maxX - range.minX;
+      const trackW = scrollH.clientWidth - thumbH.offsetWidth;
+      const dx = e.clientX - scrollDrag.startX;
+      appState.panOffset.x = scrollDrag.startPanX + (dx / trackW) * span;
+    } else {
+      const span = range.maxY - range.minY;
+      const trackH = scrollV.clientHeight - thumbV.offsetHeight;
+      const dy = e.clientY - scrollDrag.startY;
+      appState.panOffset.y = scrollDrag.startPanY + (dy / trackH) * span;
+    }
+    applyPan(getPanRange());
+  }
+
+  function onScrollPointerUp(e) {
+    if (!scrollDrag) return;
+    scrollDrag = null;
+    canvasArea.releasePointerCapture(e.pointerId);
+  }
+
+  // Horizontal: thumb drag + track click
+  thumbH.addEventListener('pointerdown', (e) => {
+    startScrollDrag(e, true);
+  });
+  scrollH.addEventListener('pointerdown', (e) => {
+    if (e.target === scrollH) {
+      const rect = scrollH.getBoundingClientRect();
+      const rx = (e.clientX - rect.left) / rect.width;
+      const r = getPanRange();
+      appState.panOffset.x = r.minX + rx * (r.maxX - r.minX);
+      applyPan(getPanRange());
+    }
+  });
+
+  // Vertical: thumb drag + track click
+  thumbV.addEventListener('pointerdown', (e) => {
+    startScrollDrag(e, false);
+  });
+  scrollV.addEventListener('pointerdown', (e) => {
+    if (e.target === scrollV) {
+      const rect = scrollV.getBoundingClientRect();
+      const ry = (e.clientY - rect.top) / rect.height;
+      const r = getPanRange();
+      appState.panOffset.y = r.minY + ry * (r.maxY - r.minY);
+      applyPan(getPanRange());
+    }
+  });
+
+  // Corner click → center
+  corner.addEventListener('click', () => {
+    const r = getPanRange();
+    appState.panOffset.x = (r.minX + r.maxX) / 2;
+    appState.panOffset.y = (r.minY + r.maxY) / 2;
+    applyPan(getPanRange());
+  });
+
+  // Global move/up for scrollbar drag
+  canvasArea.addEventListener('pointermove', onScrollPointerMove);
+  canvasArea.addEventListener('pointerup', onScrollPointerUp);
+  canvasArea.addEventListener('pointercancel', onScrollPointerUp);
+
+  // Store for external calls
+  canvasArea._applyPan = applyPan;
+  canvasArea._getPanRange = getPanRange;
+
+  // Initialize to center on next frame
+  requestAnimationFrame(() => {
+    const r = getPanRange();
+    appState.panOffset.x = (r.minX + r.maxX) / 2;
+    appState.panOffset.y = (r.minY + r.maxY) / 2;
+    applyPan(getPanRange());
+  });
+}
+
+export function updateCanvasTransform() {
+  const canvasArea = document.getElementById('canvas-area');
+  if (canvasArea && canvasArea._applyPan) {
+    canvasArea._applyPan(canvasArea._getPanRange());
+  }
 }
 
 function buildToolPalette(editorBody) {
