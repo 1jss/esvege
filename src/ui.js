@@ -344,13 +344,13 @@ function buildToolbar() {
 
   // Zoom selector
   const zoomLabel = document.createElement('label');
-  zoomLabel.style.cssText = 'color:#888;font-size:0.8rem;margin-right:0.3rem;';
+  zoomLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;margin-right:0.3rem;';
   zoomLabel.textContent = 'Zoom:';
   toolbar.appendChild(zoomLabel);
 
   const zoomSelect = document.createElement('select');
   zoomSelect.id = 'zoom-select';
-  zoomSelect.style.cssText = 'background:#1a1a2e;color:#e0e0e0;border:1px solid #444;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;';
+  zoomSelect.style.cssText = 'background:#ffffff;color:#2c2c2c;border:1px solid #e0e0e4;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;';
   const zooms = [50, 100, 200, 400, 800];
   for (const z of zooms) {
     const opt = document.createElement('option');
@@ -653,7 +653,7 @@ export function updatePropertiesPanel() {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0.3rem;border-radius:3px;cursor:pointer;font-size:0.8rem;';
     if (appState.selectedIds.includes(s.id)) {
-      row.style.background = 'rgba(79,195,247,0.15)';
+      row.style.background = 'rgba(91,143,175,0.12)';
     }
     row.addEventListener('click', () => {
       appState.selectedIds = [s.id];
@@ -668,18 +668,18 @@ export function updatePropertiesPanel() {
 
     const typeIcon = document.createElement('span');
     typeIcon.className = 'material-symbols-outlined';
-    typeIcon.style.cssText = 'font-size:1rem;color:#888;';
+    typeIcon.style.cssText = 'font-size:1rem;color:#6b6b6b;';
     typeIcon.textContent = shapeIconMap[s.type] || 'shape';
     row.appendChild(typeIcon);
 
     const idxLabel = document.createElement('span');
-    idxLabel.style.cssText = 'color:#555;font-size:0.7rem;';
+    idxLabel.style.cssText = 'color:#9e9e9e;font-size:0.7rem;';
     idxLabel.textContent = '#' + i;
     row.appendChild(idxLabel);
 
     const upBtn = document.createElement('button');
     upBtn.className = 'layer-move-btn';
-    upBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#888;font-size:1rem;display:flex;';
+    upBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#6b6b6b;font-size:1rem;display:flex;';
     upBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true" style="font-size:1rem;">arrow_upward</span>';
     upBtn.title = 'Move up';
     if (i === 0) upBtn.disabled = true;
@@ -695,7 +695,7 @@ export function updatePropertiesPanel() {
 
     const downBtn = document.createElement('button');
     downBtn.className = 'layer-move-btn';
-    downBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#888;font-size:1rem;display:flex;';
+    downBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#6b6b6b;font-size:1rem;display:flex;';
     downBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true" style="font-size:1rem;">arrow_downward</span>';
     downBtn.title = 'Move down';
     if (i === doc.shapes.length - 1) downBtn.disabled = true;
@@ -712,7 +712,7 @@ export function updatePropertiesPanel() {
 
     const duplicateBtn = document.createElement('button');
     duplicateBtn.className = 'duplicate-btn';
-    duplicateBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#888;font-size:1rem;display:flex;';
+    duplicateBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#6b6b6b;font-size:1rem;display:flex;';
     duplicateBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true" style="font-size:1rem;">content_copy</span>';
     duplicateBtn.title = 'Duplicate';
     duplicateBtn.addEventListener('click', (e) => {
@@ -739,7 +739,7 @@ export function updatePropertiesPanel() {
   const selected = doc.shapes.filter(s => appState.selectedIds.includes(s.id));
   if (selected.length === 0) {
     const empty = document.createElement('p');
-    empty.style.cssText = 'color:#555;font-size:0.8rem;';
+    empty.style.cssText = 'color:#9e9e9e;font-size:0.8rem;';
     empty.textContent = 'No selection';
     panel.appendChild(empty);
     return;
@@ -750,7 +750,7 @@ export function updatePropertiesPanel() {
     renderShapeProperties(panel, shape);
   } else {
     const multiLabel = document.createElement('p');
-    multiLabel.style.cssText = 'color:#888;font-size:0.8rem;';
+    multiLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;';
     multiLabel.textContent = 'Multiple selected';
     panel.appendChild(multiLabel);
     renderFillUI(panel, selected[0], true);
@@ -760,7 +760,7 @@ export function updatePropertiesPanel() {
 function renderShapeProperties(panel, shape) {
   // Type label
   const typeLabel = document.createElement('p');
-  typeLabel.style.cssText = 'color:#888;font-size:0.8rem;margin-bottom:0.5rem;text-transform:capitalize;';
+  typeLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;margin-bottom:0.5rem;text-transform:capitalize;';
   typeLabel.textContent = shape.type;
   panel.appendChild(typeLabel);
 
@@ -782,7 +782,7 @@ function renderShapeProperties(panel, shape) {
       if (appState.activePointIndex >= 0 && appState.activePointIndex < shape.points.length) {
         const pt = shape.points[appState.activePointIndex];
         const ptLabel = document.createElement('p');
-        ptLabel.style.cssText = 'color:#888;font-size:0.75rem;margin:0.5rem 0 0.25rem;';
+        ptLabel.style.cssText = 'color:#6b6b6b;font-size:0.75rem;margin:0.5rem 0 0.25rem;';
         ptLabel.textContent = `Point ${appState.activePointIndex}`;
         panel.appendChild(ptLabel);
         addPropRow(panel, 'x', pt.x, (v) => { pt.x = v; });
@@ -824,7 +824,7 @@ function addPropRow(panel, label, value, onChange) {
 
 function renderFillUI(panel, shape, multi) {
   const fillLabel = document.createElement('p');
-  fillLabel.style.cssText = 'color:#888;font-size:0.8rem;margin-top:0.75rem;margin-bottom:0.25rem;';
+  fillLabel.style.cssText = 'color:#6b6b6b;font-size:0.8rem;margin-top:0.75rem;margin-bottom:0.25rem;';
   fillLabel.textContent = 'Fill';
   panel.appendChild(fillLabel);
 
