@@ -403,10 +403,10 @@ function buildToolPalette(editorBody) {
 
   const tools = [
     { id: 'select', iconName: 'touch_app', title: 'Select (V)' },
+    { id: 'node', iconName: 'commit', title: 'Node (N)' },
     { id: 'circle', iconName: 'circle', title: 'Circle (C)' },
     { id: 'rect', iconName: 'crop_square', title: 'Rect (R)' },
     { id: 'bezier', iconName: 'show_chart', title: 'Bezier (B)' },
-    { id: 'node', iconName: 'commit', title: 'Node (N)' },
   ];
 
   for (const t of tools) {
@@ -422,7 +422,18 @@ function buildToolPalette(editorBody) {
   }
 
   editorBody.appendChild(palette);
+  updateNodeToolVisibility();
 }
+
+export function updateNodeToolVisibility() {
+  const btn = document.getElementById('tool-node');
+  if (!btn) return;
+  const hasBezier = appState.doc && appState.doc.shapes.some(
+    s => appState.selectedIds.includes(s.id) && s.type === 'bezier'
+  );
+  btn.style.display = hasBezier ? '' : 'none';
+}
+
 function setActiveTool(tool) {
   appState.activePointIndex = -1;
 
@@ -453,6 +464,7 @@ function setActiveTool(tool) {
   document.querySelectorAll('#tool-palette .btn-icon').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById(`tool-${tool}`);
   if (btn) btn.classList.add('active');
+  updateNodeToolVisibility();
 
   if (renderFn) renderFn();
 }
@@ -661,6 +673,55 @@ function renderFillUI(panel, shape, multi) {
   fillLabel.textContent = 'Fill';
   panel.appendChild(fillLabel);
 
+  const currentRow = document.createElement('div');
+  currentRow.className = 'current-fill-row';
+
+  const currentSwatch = document.createElement('div');
+  currentSwatch.className = 'current-fill-swatch';
+  currentSwatch.style.backgroundColor = shape.fill || '#000000';
+  currentSwatch.addEventListener('click', () => nativePicker.click());
+  currentRow.appendChild(currentSwatch);
+
+  const hexInput = document.createElement('input');
+  hexInput.type = 'text';
+  hexInput.className = 'hex-input';
+  hexInput.value = shape.fill || '#000000';
+  hexInput.addEventListener('blur', () => {
+    let val = hexInput.value.trim();
+    if (!val.startsWith('#')) val = '#' + val;
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      pushSnapshot();
+      if (multi) {
+        for (const s of appState.doc.shapes.filter(s => appState.selectedIds.includes(s.id))) {
+          s.fill = val;
+        }
+      } else {
+        shape.fill = val;
+      }
+      if (renderFn) renderFn();
+    }
+  });
+  currentRow.appendChild(hexInput);
+
+  const nativePicker = document.createElement('input');
+  nativePicker.type = 'color';
+  nativePicker.value = shape.fill || '#000000';
+  nativePicker.addEventListener('input', () => {
+    pushSnapshot();
+    if (multi) {
+      for (const s of appState.doc.shapes.filter(s => appState.selectedIds.includes(s.id))) {
+        s.fill = nativePicker.value;
+      }
+    } else {
+      shape.fill = nativePicker.value;
+    }
+    if (renderFn) renderFn();
+  });
+  nativePicker.style.display = 'none';
+  currentRow.appendChild(nativePicker);
+
+  panel.appendChild(currentRow);
+
   const palette = document.createElement('div');
   palette.className = 'color-palette';
 
@@ -668,7 +729,6 @@ function renderFillUI(panel, shape, multi) {
     const swatch = document.createElement('div');
     swatch.className = 'color-swatch';
     swatch.style.backgroundColor = c;
-    if (!multi && shape.fill === c) swatch.classList.add('active');
     swatch.addEventListener('click', () => {
       pushSnapshot();
       if (multi) {
@@ -682,24 +742,6 @@ function renderFillUI(panel, shape, multi) {
     });
     palette.appendChild(swatch);
   }
-
-  // Native color picker
-  const nativePicker = document.createElement('input');
-  nativePicker.type = 'color';
-  nativePicker.className = 'color-picker-native';
-  nativePicker.value = shape.fill || '#000000';
-  nativePicker.addEventListener('input', () => {
-    pushSnapshot();
-    if (multi) {
-      for (const s of appState.doc.shapes.filter(s => appState.selectedIds.includes(s.id))) {
-        s.fill = nativePicker.value;
-      }
-    } else {
-      shape.fill = nativePicker.value;
-    }
-    if (renderFn) renderFn();
-  });
-  palette.appendChild(nativePicker);
 
   panel.appendChild(palette);
 }

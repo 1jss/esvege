@@ -3,8 +3,8 @@ import { icon } from './icons.js';
 import { listDocuments, loadDocument, saveDocument, setActive, getActive } from './store.js';
 import { toSVGElement, cloneShape } from './shapes.js';
 import { drawSelectionHandles, drawNodeHandles } from './handles.js';
-import { setupToolHandlers } from './tools.js';
-import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool } from './ui.js';
+import { setupToolHandlers, updateToolUI } from './tools.js';
+import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool, updateNodeToolVisibility } from './ui.js';
 import { exportSVG } from './export.js';
 
 // App state singleton
@@ -141,6 +141,7 @@ function render() {
   }
 
   // Update properties panel
+  updateNodeToolVisibility();
   updatePropertiesPanel();
 }
 
@@ -215,6 +216,12 @@ function onKeyDown(e) {
     appState.doc.shapes = appState.doc.shapes.filter(s => !appState.selectedIds.includes(s.id));
     appState.selectedIds = [];
     appState.activePointIndex = -1;
+    if (appState.tool === 'node' && !appState.doc.shapes.some(
+      s => appState.selectedIds.includes(s.id) && s.type === 'bezier'
+    )) {
+      appState.tool = 'select';
+      updateToolUI();
+    }
     saveDocument(appState.doc);
     render();
     return;

@@ -448,6 +448,39 @@ html, body {
   border: 1px solid #444;
 }
 
+/* Current fill row */
+.current-fill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+}
+
+.current-fill-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.hex-input {
+  flex: 1;
+  max-width: 100px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 3px;
+  color: #ddd;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  outline: none;
+}
+
+.hex-input:focus {
+  border-color: #4fc3f7;
+}
+
 /* Toast */
 #toast-container {
   position: fixed;

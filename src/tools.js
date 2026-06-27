@@ -468,7 +468,7 @@ function finishBezier(svg) {
   renderFn();
 }
 
-function updateToolUI() {
+export function updateToolUI() {
   document.querySelectorAll('#tool-palette .btn-icon').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById(`tool-${appState.tool}`);
   if (btn) btn.classList.add('active');
