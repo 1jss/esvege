@@ -25,6 +25,12 @@ export function setupToolHandlers(svgEl, state, render) {
   svgEl.addEventListener('pointerleave', onPointerUp);
 }
 
+// Checks if two points are within a scaled distance of 4 pixels
+function isOnPoint(mx, my, px, py) {
+  const dist = Math.hypot(mx - px, my - py);
+  return dist <= Math.ceil(4 * (1 / appState.zoom));
+}
+
 function onPointerDown(e) {
   if (!appState.doc) return;
   const svg = e.currentTarget;
@@ -34,7 +40,7 @@ function onPointerDown(e) {
 
   // Manual double-click detection
   const now = Date.now();
-  const isDblClick = (now - lastClickTime < 350 && Math.hypot(mx - lastClickSvgX, my - lastClickSvgY) < 4);
+  const isDblClick = isOnPoint(mx, my, lastClickSvgX, lastClickSvgY) && now - lastClickTime < 350;
   lastClickTime = now;
   lastClickSvgX = mx;
   lastClickSvgY = my;
@@ -50,8 +56,7 @@ function onPointerDown(e) {
         const pt = bezier.points[appState.activePointIndex];
         for (const handle of ['cp1', 'cp2']) {
           if (pt[handle + 'x'] != null) {
-            const d = Math.hypot(mx - pt[handle + 'x'], my - pt[handle + 'y']);
-            if (d <= 4) {
+            if (isOnPoint(mx, my, pt[handle + 'x'], pt[handle + 'y'])) {
               pt[handle + 'x'] = null;
               pt[handle + 'y'] = null;
               pushSnapshot();
@@ -65,7 +70,7 @@ function onPointerDown(e) {
       // Check anchor points
       for (let i = 0; i < bezier.points.length; i++) {
         const pt = bezier.points[i];
-        if (Math.hypot(mx - pt.x, my - pt.y) <= 4) {
+        if (isOnPoint(mx, my, pt.x, pt.y)) {
           if (pt.cp1x == null || pt.cp2x == null) {
             const pts = bezier.points;
             const n = pts.length;
@@ -264,8 +269,9 @@ function onPointerDown(e) {
     const pts = appState.bezierPoints || [];
     if (pts.length > 0) {
       const first = pts[0];
-      const dist = Math.hypot(mx - first.x, my - first.y);
-      if (dist <= 6 && pts.length >= 2) {
+      const onFirst =
+        Math.round(mx) === Math.round(first.x) && Math.round(my) === Math.round(first.y);
+      if (onFirst && pts.length >= 2) {
         finishBezier(svg);
         return;
       }

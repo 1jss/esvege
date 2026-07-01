@@ -351,7 +351,7 @@ function buildToolbar() {
   const zoomSelect = document.createElement('select');
   zoomSelect.id = 'zoom-select';
   zoomSelect.style.cssText = 'background:#ffffff;color:#2c2c2c;border:1px solid #e0e0e4;border-radius:3px;padding:0.15rem 0.3rem;font-size:0.8rem;';
-  const zooms = [50, 100, 200, 400, 800];
+  const zooms = [50, 100, 200, 400, 800, 1600, 3200];
   for (const z of zooms) {
     const opt = document.createElement('option');
     opt.value = z;
@@ -360,6 +360,7 @@ function buildToolbar() {
     zoomSelect.appendChild(opt);
   }
   zoomSelect.addEventListener('change', () => {
+    appState.zoom = parseInt(zoomSelect.value) / 100;
     updateCanvasTransform();
     if (renderFn) renderFn();
   });
@@ -574,12 +575,7 @@ function buildCanvasArea(editorBody, doc) {
   });
 
   // Corner click → center
-  corner.addEventListener('click', () => {
-    const r = getPanRange();
-    appState.panOffset.x = (r.minX + r.maxX) / 2;
-    appState.panOffset.y = (r.minY + r.maxY) / 2;
-    applyPan(getPanRange());
-  });
+  corner.addEventListener('click', () => canvasArea._centerView());
 
   // Global move/up for scrollbar drag
   canvasArea.addEventListener('pointermove', onScrollPointerMove);
@@ -587,23 +583,20 @@ function buildCanvasArea(editorBody, doc) {
   canvasArea.addEventListener('pointercancel', onScrollPointerUp);
 
   // Store for external calls
-  canvasArea._applyPan = applyPan;
-  canvasArea._getPanRange = getPanRange;
-
-  // Initialize to center on next frame
-  requestAnimationFrame(() => {
+  canvasArea._centerView = () => {
     const r = getPanRange();
     appState.panOffset.x = (r.minX + r.maxX) / 2;
     appState.panOffset.y = (r.minY + r.maxY) / 2;
-    applyPan(getPanRange());
-  });
+    applyPan(r);
+  };
+
+  // Initialize to center on next frame
+  requestAnimationFrame(() => canvasArea._centerView());
 }
 
 export function updateCanvasTransform() {
   const canvasArea = document.getElementById('canvas-area');
-  if (canvasArea && canvasArea._applyPan) {
-    canvasArea._applyPan(canvasArea._getPanRange());
-  }
+  if (canvasArea && canvasArea._centerView) canvasArea._centerView();
 }
 
 function buildToolPalette(editorBody) {

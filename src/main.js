@@ -7,11 +7,6 @@ import { setupToolHandlers, updateToolUI } from './tools.js';
 import { buildStartupScreen, enterEditor, exitEditor, initUI, updatePropertiesPanel, showToast, setActiveTool, updateNodeToolVisibility, updateCanvasTransform } from './ui.js';
 import { exportSVG } from './export.js';
 
-function getZoom() {
-  const select = document.getElementById('zoom-select');
-  return select ? parseInt(select.value) / 100 : 1;
-}
-
 // App state singleton
 const appState = {
   doc: null,
@@ -22,6 +17,7 @@ const appState = {
   undoStack: [],
   redoStack: [],
   panOffset: { x: 0, y: 0 },
+  zoom: 1,
   _preview: null,
   // Callbacks wired by init
   onUndo: null,
@@ -122,7 +118,7 @@ function render() {
       const circle = document.createElementNS(ns, 'circle');
       circle.setAttribute('cx', pt.x);
       circle.setAttribute('cy', pt.y);
-      circle.setAttribute('r', 6 / getZoom());
+      circle.setAttribute('r', 6 / appState.zoom);
       circle.classList.add('bezier-preview-point');
       handlesLayer.appendChild(circle);
     }
@@ -132,7 +128,7 @@ function render() {
   if (appState.tool === 'select' && appState.selectedIds.length > 0) {
     const selectedShapes = doc.shapes.filter(s => appState.selectedIds.includes(s.id));
     if (selectedShapes.length > 0) {
-      drawSelectionHandles(svg, selectedShapes);
+      drawSelectionHandles(svg, selectedShapes, appState.zoom);
     }
   }
 
@@ -142,7 +138,7 @@ function render() {
       s => s.id === appState.selectedIds[0] && s.type === 'bezier'
     );
     if (bezier) {
-      drawNodeHandles(svg, bezier, appState.activePointIndex);
+      drawNodeHandles(svg, bezier, appState.activePointIndex, appState.zoom);
     }
   }
 

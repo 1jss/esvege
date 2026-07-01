@@ -1,15 +1,10 @@
 import { getBoundingBox, cloneShape } from './shapes.js';
 
-function getZoom() {
-  const select = document.getElementById('zoom-select');
-  return select ? parseInt(select.value) / 100 : 1;
-}
-
 /**
  * Draw selection bounding-box handles for a list of shapes.
  * Returns an array of handle descriptors used for drag-resize.
  */
-export function drawSelectionHandles(svg, shapes) {
+export function drawSelectionHandles(svg, shapes, zoom) {
   const ns = 'http://www.w3.org/2000/svg';
   const handlesLayer = svg.querySelector('#handles-layer');
   if (!handlesLayer || shapes.length === 0) return [];
@@ -56,7 +51,7 @@ export function drawSelectionHandles(svg, shapes) {
     const circle = document.createElementNS(ns, 'circle');
     circle.setAttribute('cx', pos.x);
     circle.setAttribute('cy', pos.y);
-    circle.setAttribute('r', 6 / getZoom());
+    circle.setAttribute('r', 6 / zoom);
     circle.classList.add('resize-handle');
     circle.style.cursor = pos.cursor;
     circle.dataset.handleId = pos.id;
@@ -159,7 +154,7 @@ export function applyBBoxToShape(shape, bbox) {
 /**
  * Draw bezier node editing handles (anchor points + control handles).
  */
-export function drawNodeHandles(svg, shape, activePointIndex) {
+export function drawNodeHandles(svg, shape, activePointIndex, zoom) {
   const ns = 'http://www.w3.org/2000/svg';
   const handlesLayer = svg.querySelector('#handles-layer');
   if (!handlesLayer || !shape || shape.type !== 'bezier') return;
@@ -196,7 +191,7 @@ export function drawNodeHandles(svg, shape, activePointIndex) {
     const circle = document.createElementNS(ns, 'circle');
     circle.setAttribute('cx', pt.x);
     circle.setAttribute('cy', pt.y);
-    circle.setAttribute('r', 6.5 / getZoom());
+    circle.setAttribute('r', 6.5 / zoom);
     circle.classList.add('anchor-point');
     if (i === activePointIndex) circle.classList.add('active');
     circle.dataset.anchorIndex = i;
@@ -210,7 +205,7 @@ export function drawNodeHandles(svg, shape, activePointIndex) {
       const dot = document.createElementNS(ns, 'circle');
       dot.setAttribute('cx', pt.cp1x);
       dot.setAttribute('cy', pt.cp1y);
-      dot.setAttribute('r', 6 / getZoom());
+      dot.setAttribute('r', 6 / zoom);
       dot.classList.add('control-dot');
       dot.dataset.handle = 'cp1';
       handlesLayer.appendChild(dot);
@@ -219,7 +214,7 @@ export function drawNodeHandles(svg, shape, activePointIndex) {
       const dot = document.createElementNS(ns, 'circle');
       dot.setAttribute('cx', pt.cp2x);
       dot.setAttribute('cy', pt.cp2y);
-      dot.setAttribute('r', 6 / getZoom());
+      dot.setAttribute('r', 6 / zoom);
       dot.classList.add('control-dot');
       dot.dataset.handle = 'cp2';
       handlesLayer.appendChild(dot);
